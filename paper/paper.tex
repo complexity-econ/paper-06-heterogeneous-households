@@ -176,10 +176,14 @@ $(s_i, d_i, r_i, c_i, \sigma_i, h_i, \xi_i)$ where $s_i$ is savings,
 $d_i$ is debt, $r_i$ is monthly rent, $c_i$ is the marginal propensity
 to consume (MPC), $\sigma_i$ is skill level, $h_i$ is health penalty,
 and $\xi_i$ is employment status. The status $\xi_i$ takes values in
-$\{\text{Employed}(f, k, w), \text{Unemployed}(m),
-\text{Retraining}(m, k, c), \text{Bankrupt}\}$ where $f$ is firm~ID,
-$k$ is sector, $w$ is wage, $m$ is months in state, and $c$ is
-retraining cost.
+\[
+  \bigl\{\,\text{Employed}(f, k, w),\;
+  \text{Unemployed}(m),\;
+  \text{Retraining}(m, k, c),\;
+  \text{Bankrupt}\,\bigr\}
+\]
+where $f$ is firm~ID, $k$ is sector, $w$ is wage, $m$ is months in
+state, and $c$ is retraining cost.
 
 \paragraph{Initialization.} Savings are drawn from
 $\ln s_i \sim \mathcal{N}(\mu_s, \sigma_s^2)$ with $\mu_s = 9.6$,
