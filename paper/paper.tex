@@ -1,0 +1,107 @@
+% !TEX program = xelatex
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage[backend=bibtex,style=authoryear,natbib=true]{biblatex}
+\addbibresource{references.bib}
+
+\title{Heterogeneous Households in UBI-Driven Automation:\\
+  Savings Depletion, Bankruptcy Cascades, and the Limits of Universal Basic Income}
+
+\author{Author Name}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We extend the SFC-ABM model of UBI-driven automation (Papers~1--5) with
+heterogeneous household agents---each with individual savings, debt, rent
+obligations, skills, and health scarring from unemployment. Where previous
+work used an aggregate household sector that computed welfare metrics
+post-hoc, individual agents reveal within-group inequality, path-dependent
+poverty traps, and bankruptcy cascades invisible to the representative agent.
+We characterize how UBI interacts with household heterogeneity across five
+simulation campaigns: backward-compatibility validation, full BDP sweep,
+MPC heterogeneity, wealth distribution sensitivity, and retraining policy
+analysis. Results show that [TBD].
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+% TODO: Motivation, literature on heterogeneous agents in macro
+
+\section{Model Extension}
+\label{sec:model}
+
+\subsection{Household Agent}
+\label{sec:household}
+
+% HhStatus enum, Household case class, initialization
+
+\subsection{Monthly Household Step}
+\label{sec:hh-step}
+
+% Income, obligations, consumption, bankruptcy, skill decay, scarring, retraining
+
+\subsection{Labor Market}
+\label{sec:labor}
+
+% Separations, job search, wage determination
+
+\subsection{Social Network Effects}
+\label{sec:social}
+
+% WS network among households, precautionary saving, retraining boost
+
+\section{Simulation Design}
+\label{sec:simulations}
+
+% 5 campaigns, ~1590 sims
+
+\section{Results}
+\label{sec:results}
+
+\subsection{Backward Compatibility}
+\label{sec:validation}
+
+% C1: aggregate vs individual match within 5%
+
+\subsection{BDP Sweep with Individual Households}
+\label{sec:sweep}
+
+% C2: full sweep, 8 figures
+
+\subsection{MPC Heterogeneity}
+\label{sec:mpc}
+
+% C3: 3 MPC distributions
+
+\subsection{Wealth Distribution Sensitivity}
+\label{sec:wealth}
+
+% C4: poor/baseline/rich
+
+\subsection{Retraining Policy}
+\label{sec:retraining}
+
+% C5: none/baseline/enhanced
+
+\section{Discussion}
+\label{sec:discussion}
+
+% Key findings, policy implications
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+\printbibliography
+
+\end{document}

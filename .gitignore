@@ -1,0 +1,23 @@
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.run.xml
+*.toc
+*.bcf
+*-blx.bib
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Scala
+target/
+.bsp/
+.metals/
+
+# OS
+.DS_Store
