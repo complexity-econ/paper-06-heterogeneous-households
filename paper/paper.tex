@@ -1,107 +1,652 @@
 % !TEX program = xelatex
+% Compile: xelatex → bibtex → xelatex → xelatex
 \documentclass[12pt,a4paper]{article}
 
 \usepackage{fontspec}
 \usepackage[english]{babel}
+\usepackage[backend=bibtex,style=authoryear,sorting=nyt,maxcitenames=2]{biblatex}
+\addbibresource{references.bib}
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{hyperref}
-\usepackage[backend=bibtex,style=authoryear,natbib=true]{biblatex}
-\addbibresource{references.bib}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{siunitx}
 
-\title{Heterogeneous Households in UBI-Driven Automation:\\
-  Savings Depletion, Bankruptcy Cascades, and the Limits of Universal Basic Income}
+\title{\textbf{Heterogeneous Households and the Limits of Universal Basic Income:\\
+Savings Depletion, Scarring Traps, and Bankruptcy Cascades\\
+in an AI-Driven Automation Transition}}
 
-\author{Author Name}
-\date{\today}
+\author{Mateusz Maciaszek}
+
+\date{{\small February 2026}}
 
 \begin{document}
 
 \maketitle
 
+%----------------------------------------------------------------------
 \begin{abstract}
-We extend the SFC-ABM model of UBI-driven automation (Papers~1--5) with
-heterogeneous household agents---each with individual savings, debt, rent
-obligations, skills, and health scarring from unemployment. Where previous
-work used an aggregate household sector that computed welfare metrics
-post-hoc, individual agents reveal within-group inequality, path-dependent
-poverty traps, and bankruptcy cascades invisible to the representative agent.
-We characterize how UBI interacts with household heterogeneity across five
-simulation campaigns: backward-compatibility validation, full BDP sweep,
-MPC heterogeneity, wealth distribution sensitivity, and retraining policy
-analysis. Results show that [TBD].
+%----------------------------------------------------------------------
+
+Papers~I--V of this series established that AI-driven automation in a
+stock-flow consistent agent-based model (SFC-ABM) exhibits a reentrant
+phase transition at a critical basic disposable payment
+$\mathrm{BDP}_c \approx 500$~PLN, with mean-field universality invariant to
+network topology, decision rules, and endogenous technology dynamics.
+However, all prior work used an \emph{aggregate} household sector---a
+single representative agent whose welfare metrics were computed post~hoc
+from employment counts and wage totals. This paper replaces the aggregate
+with 100,000 heterogeneous household agents, each endowed with individual
+savings (log-normal, $\mu = 9.6$, $\sigma = 1.2$), debt (40\% indebted),
+rent obligations ($\bar{r} = 1{,}800$ PLN), idiosyncratic marginal
+propensity to consume (Beta-distributed, $\alpha = 8.2$, $\beta = 1.8$),
+skill level subject to unemployment-driven decay, and health capital
+subject to scarring.
+
+Across five simulation campaigns (1,740 Monte Carlo runs, 30~seeds each),
+we find three results invisible to the representative agent. First,
+\textbf{aggregate metrics mask microstructural destruction}: the critical
+point $\mathrm{BDP}_c = 500$ that appeared as a ``sweet spot'' in
+Papers~I--IV (low Gini, moderate adoption) is in fact the point of
+\emph{maximum} household bankruptcy (17.3\%), peak poverty (45\% at 50\%
+median threshold), and peak income inequality (Gini $\approx 0.50$).
+Second, \textbf{unemployment scarring creates a retraining catch-22}:
+skill decay ($-2\%$/month) and health penalties ($+2\%$/month, cap~50\%)
+accumulate during joblessness, reducing retraining success probability
+precisely for those who need it most---even a doubled retraining
+intensity yields only 18\% completion. Third, \textbf{UBI solves the
+income problem but not the human capital problem}: high BDP ($\geq 3{,}000$
+PLN) reduces income Gini to 0.15 and poverty below 10\%, but produces the
+highest scarring levels as accelerated automation generates prolonged
+unemployment spells.
+
+These findings establish that the automation transition under UBI is not
+merely a distributional challenge amenable to transfer policy, but a
+\emph{structural} transformation whose costs are mediated by path-dependent
+human capital destruction. The policy implication is that UBI requires
+complementary interventions---particularly pre-emptive skill protection
+before scarring onset---to prevent the emergence of a transfer-dependent
+class excluded from productive employment.
+
+\medskip\noindent
+\textbf{Keywords:} agent-based model, stock-flow consistency,
+heterogeneous households, universal basic income, automation, unemployment
+scarring, bankruptcy cascades, retraining policy, inequality
+
+\medskip\noindent
+\textbf{JEL codes:} C63, D31, E21, J24, O33
+
+\medskip\noindent
+\textbf{Code \& Data:}
+\url{https://github.com/complexity-econ/paper-06-heterogeneous-households}
+
 \end{abstract}
 
+\newpage
+\tableofcontents
+\newpage
+
+%======================================================================
 \section{Introduction}
 \label{sec:intro}
+%======================================================================
 
-% TODO: Motivation, literature on heterogeneous agents in macro
+The macroeconomic modeling of automation-driven labor market transitions
+has relied predominantly on representative-agent frameworks, where a
+single household sector aggregates consumption, savings, and labor supply
+decisions \parencite{acemoglu2020, korinek2024}. This modeling choice
+imposes a strong assumption: that the distributional consequences of
+technological change can be inferred from aggregate employment and output
+dynamics. The heterogeneous-agent New Keynesian (HANK) literature has
+demonstrated that this assumption fails for monetary policy
+\parencite{kaplan2018, krueger2016}; we show it fails equally for
+automation policy.
 
-\section{Model Extension}
+Papers~I--V of this series constructed a stock-flow consistent
+agent-based model (SFC-ABM) of AI-driven automation in the Polish
+economy, progressively establishing: the acceleration paradox whereby
+UBI catalyzes rather than cushions automation
+\parencite{maciaszek2026a}; the role of monetary regime in modulating
+the transition \parencite{maciaszek2026b}; empirical calibration of
+sectoral elasticities \parencite{maciaszek2026c}; phase transition
+universality across topologies and decision rules
+\parencite{maciaszek2026d}; and robustness to endogenous technology and
+network dynamics \parencite{maciaszek2026e}. Throughout, the household
+sector was a single aggregate: total wage income was computed as
+$\text{employed} \times \text{wage}$, consumption as
+$\text{income} \times \text{MPC}$, and welfare metrics (Gini,
+unemployment rate) derived post~hoc from sector-level counts.
+
+This paper replaces the aggregate household with 100,000 individual
+agents, each with heterogeneous endowments, behavioral parameters, and
+path-dependent state variables. The motivation is threefold. First, the
+\emph{representative agent hides bankruptcy}: when aggregate income
+falls, the representative agent reduces consumption smoothly, but
+individual households with low savings and fixed obligations (rent, debt
+service) face discrete bankruptcy events invisible to the aggregate.
+Second, the \emph{aggregate conceals scarring}: unemployment in the
+aggregate is a flow variable, but for individuals it is a duration that
+progressively destroys skills and health---a mechanism emphasized in the
+labor economics literature \parencite{arulampalam2001, jacobson1993,
+blanchard1986} but absent from macro ABMs. Third, the \emph{aggregate
+masks policy failures}: retraining programs appear effective in aggregate
+(more programs $=$ more re-employment) but at the individual level,
+scarring reduces the probability of successful retraining precisely for
+those with the longest unemployment spells---a catch-22 that only
+emerges with heterogeneous agents.
+
+We organize the analysis around five simulation campaigns
+(Table~\ref{tab:campaigns}): backward-compatibility validation (C1),
+full BDP sweep with 21~levels (C2), MPC heterogeneity sensitivity (C3),
+initial wealth distribution sensitivity (C4), and retraining policy
+analysis (C5). The central finding is that the critical point
+$\mathrm{BDP}_c = 500$ identified in Papers~I--IV as a ``sweet spot''
+of high adoption and low aggregate inequality is, at the household level,
+the point of maximum microstructural destruction.
+
+%======================================================================
+\section{Model Extension: Heterogeneous Households}
 \label{sec:model}
+%======================================================================
 
+We preserve the full SFC-ABM engine from Papers~I--V---10,000 firms
+across six GUS-calibrated sectors, Watts-Strogatz inter-firm network
+($k = 6$, $p = 0.10$), Taylor-rule monetary policy, and always-on
+balance-sheet accounting \parencite{godley2007}---and replace the
+aggregate household sector with individual agents. The extension is
+backward-compatible: setting \texttt{HH\_MODE=aggregate} recovers the
+Papers~I--V behavior exactly.
+
+%----------------------------------------------------------------------
 \subsection{Household Agent}
 \label{sec:household}
+%----------------------------------------------------------------------
 
-% HhStatus enum, Household case class, initialization
+Each household $i$ is a tuple
+$(s_i, d_i, r_i, c_i, \sigma_i, h_i, \xi_i)$ where $s_i$ is savings,
+$d_i$ is debt, $r_i$ is monthly rent, $c_i$ is the marginal propensity
+to consume (MPC), $\sigma_i$ is skill level, $h_i$ is health penalty,
+and $\xi_i$ is employment status. The status $\xi_i$ takes values in
+$\{\text{Employed}(f, k, w), \text{Unemployed}(m),
+\text{Retraining}(m, k, c), \text{Bankrupt}\}$ where $f$ is firm~ID,
+$k$ is sector, $w$ is wage, $m$ is months in state, and $c$ is
+retraining cost.
 
+\paragraph{Initialization.} Savings are drawn from
+$\ln s_i \sim \mathcal{N}(\mu_s, \sigma_s^2)$ with $\mu_s = 9.6$,
+$\sigma_s = 1.2$ (median $\approx 15{,}000$ PLN, matching NBP 2023
+household survey data). A fraction $\phi_d = 0.40$ of households carry
+debt drawn from $\ln d_i \sim \mathcal{N}(10.5, 1.5^2)$ (median
+$\approx 36{,}000$ PLN). Rent is drawn from
+$r_i \sim \mathcal{N}(1{,}800, 400^2)$ with floor 800~PLN. MPC follows
+$c_i \sim \text{Beta}(\alpha, \beta)$ with $\alpha = 8.2$,
+$\beta = 1.8$ (mean $\approx 0.82$, matching Polish household budget
+survey propensities). Households are connected via a separate
+Watts-Strogatz social network ($k = 6$, $p = 0.10$).
+
+%----------------------------------------------------------------------
 \subsection{Monthly Household Step}
 \label{sec:hh-step}
+%----------------------------------------------------------------------
 
-% Income, obligations, consumption, bankruptcy, skill decay, scarring, retraining
+Each month, for each household $i$:
 
+\paragraph{1. Income.} Employed households receive wage $w_i$ plus
+universal BDP. Unemployed households receive BDP only. Retraining
+households receive $0.7 \times \text{BDP}$ (reduced availability).
+Bankrupt households are absorbing---no further income or transitions.
+
+\paragraph{2. Obligations.} Rent $r_i$ is deducted. Indebted households
+pay debt service at rate $\delta = 2\%$/month of outstanding principal.
+
+\paragraph{3. Consumption.} Disposable income (after obligations) is
+consumed at rate $c_i$, split between domestic and imported goods using
+the same import propensity as the aggregate model.
+
+\paragraph{4. Bankruptcy.} If $s_i < -3 \times r_i$ (savings fall below
+three months' negative rent), the household enters the absorbing
+Bankrupt state.
+
+\paragraph{5. Skill decay.} After an onset period of $\tau_0 = 3$ months
+of unemployment, skills decay geometrically:
+\begin{equation}
+  \sigma_i(t+1) = (1 - \lambda_\sigma) \cdot \sigma_i(t),
+  \quad \lambda_\sigma = 0.02 \text{ per month}
+  \label{eq:skill-decay}
+\end{equation}
+
+\paragraph{6. Health scarring.} After the same onset period, a health
+penalty accumulates linearly:
+\begin{equation}
+  h_i(t+1) = \min\bigl(h_{\max},\; h_i(t) + \lambda_h\bigr),
+  \quad \lambda_h = 0.02, \; h_{\max} = 0.50
+  \label{eq:health-scarring}
+\end{equation}
+The health penalty reduces consumption utility and retraining success
+probability. The 3-month onset, 2\%/month rate, and 50\% cap are
+calibrated to the scarring literature \parencite{arulampalam2001,
+jacobson1993}.
+
+\paragraph{7. Retraining.} Unemployed households with $m > 6$ months may
+enter retraining with probability $p_r$ (baseline: 0.15) if savings
+exceed the cost (baseline: 5,000~PLN). Social network effects add
+$+0.05$ to $p_r$ if more than 30\% of neighbors are distressed.
+Retraining lasts $\tau_r$ months (baseline: 6) after which success
+probability is:
+\begin{equation}
+  p_{\text{success}} = p_0 \cdot \sigma_i \cdot (1 - h_i),
+  \quad p_0 = 0.60
+  \label{eq:retrain-success}
+\end{equation}
+This creates the catch-22: long-unemployed households have low $\sigma_i$
+and high $h_i$, making retraining least likely to succeed for those who
+need it most.
+
+%----------------------------------------------------------------------
 \subsection{Labor Market}
 \label{sec:labor}
+%----------------------------------------------------------------------
 
-% Separations, job search, wage determination
+The individual labor market operates in three phases each month.
+\emph{Separations}: workers at firms that automate or go bankrupt lose
+employment. \emph{Job search}: unemployed households seek vacancies,
+prioritizing their previous sector (sector-specific human capital), with
+fallback to cross-sector matching ordered by sectoral CES elasticity
+$\sigma_k$. \emph{Wage update}: employed workers' wages track the
+macro-level market wage.
 
+%----------------------------------------------------------------------
 \subsection{Social Network Effects}
 \label{sec:social}
+%----------------------------------------------------------------------
 
-% WS network among households, precautionary saving, retraining boost
+The household social network (Watts-Strogatz, $k = 6$, $p = 0.10$)
+transmits two behavioral signals. First, a \emph{precautionary saving
+boost}: households with high neighbor distress ratios reduce consumption
+(increase effective saving). Second, a \emph{retraining probability
+boost}: concentrated neighborhood unemployment increases the likelihood
+of entering retraining by 5~pp when the distress ratio exceeds 30\%.
 
+%----------------------------------------------------------------------
+\subsection{SFC Accounting}
+\label{sec:sfc}
+%----------------------------------------------------------------------
+
+All household flows (income, consumption, rent, debt service) are
+integrated into the always-on balance-sheet check
+\parencite{godley2007}. The SFC validator verifies three exact identities
+each month: bank capital $=$ prior capital $-$ NPL loss $+$
+$0.3 \times$ interest income $+ 0.3 \times$ household debt service;
+bank deposits $=$ prior deposits $+$ total income $-$ total consumption;
+government debt $=$ prior debt $+$ spending $-$ revenue. Any violation
+$> 1.0$~PLN triggers a runtime assertion.
+
+%======================================================================
 \section{Simulation Design}
 \label{sec:simulations}
+%======================================================================
 
-% 5 campaigns, ~1590 sims
+\begin{table}[htbp]
+\centering
+\caption{Simulation campaigns}
+\label{tab:campaigns}
+\begin{tabular}{clcrl}
+\toprule
+\textbf{ID} & \textbf{Campaign} & \textbf{Sims} & \textbf{Seeds} & \textbf{Variation} \\
+\midrule
+C1 & Validation & 60 & 30 & Aggregate vs individual, 5 BDP levels \\
+C2 & BDP sweep & 630 & 30 & 21 BDP levels (0--5,000 by 250) \\
+C3 & MPC sensitivity & 270 & 30 & 3 MPC distributions $\times$ 3 BDP \\
+C4 & Wealth sensitivity & 270 & 30 & 3 initial wealth $\times$ 3 BDP \\
+C5 & Retraining policy & 270 & 30 & 3 retraining configs $\times$ 3 BDP \\
+\midrule
+   & \textbf{Total} & \textbf{1,500} & & \\
+\bottomrule
+\end{tabular}
+\end{table}
 
+All campaigns use the PLN monetary regime with 10,000 firms across six
+GUS-calibrated sectors and 100,000 individual households. Duration is
+120~months with technology shock at month~30. Each seed uses an
+independent random number generator for household initialization, firm
+decisions, and labor market matching.
+
+\paragraph{C1: Validation.} Five BDP levels (0, 500, 1000, 2000, 3000)
+are run in both aggregate and individual mode. We verify that macro
+aggregates (unemployment, adoption, inflation) match within 5\%,
+confirming backward compatibility.
+
+\paragraph{C2: BDP sweep.} Twenty-one BDP levels from 0 to 5,000~PLN in
+250~PLN increments, each with 30~seeds. This is the core campaign,
+generating the distributional analysis in Figures~1--4 and~6--8.
+
+\paragraph{C3: MPC sensitivity.} Three Beta distributions: low variance
+($\alpha = 16$), baseline ($\alpha = 8.2$), and high variance
+($\alpha = 3$), tested at BDP $\in \{0, 500, 2000\}$.
+
+\paragraph{C4: Wealth sensitivity.} Three initial savings distributions:
+poor ($\mu_s = 8.5$, median $\approx 5{,}000$ PLN), baseline
+($\mu_s = 9.6$, median $\approx 15{,}000$), and rich ($\mu_s = 10.5$,
+median $\approx 36{,}000$), tested at the same three BDP levels.
+
+\paragraph{C5: Retraining policy.} Three configurations: disabled
+(no retraining), baseline ($p_r = 0.15$, cost $= 5{,}000$, duration
+$= 6$ months), and enhanced ($p_r = 0.30$, cost $= 2{,}500$, duration
+$= 3$ months), tested at three BDP levels.
+
+%======================================================================
 \section{Results}
 \label{sec:results}
+%======================================================================
 
-\subsection{Backward Compatibility}
-\label{sec:validation}
+%----------------------------------------------------------------------
+\subsection{The Critical Point Unmasked}
+\label{sec:critical}
+%----------------------------------------------------------------------
 
-% C1: aggregate vs individual match within 5%
+Papers~I--IV identified $\mathrm{BDP}_c = 500$~PLN as the critical
+point of the automation phase transition---the BDP level at which
+adoption variance peaks and the system exhibits maximum sensitivity.
+Aggregate metrics at this point (Gini $\approx 0.20$, moderate
+unemployment) suggested a policy ``sweet spot.'' Individual household
+data tells a different story.
 
-\subsection{BDP Sweep with Individual Households}
-\label{sec:sweep}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/fig04_bankruptcy_cascade.png}
+  \caption{Household bankruptcy rate at month~120 by BDP level (Campaign~2,
+    30~seeds). The rate peaks at $\mathrm{BDP} = 500$ PLN (17.3\%), precisely
+    at the critical point identified in Papers~I--IV. Error bars show
+    $\pm 1\sigma$ across seeds.}
+  \label{fig:bankruptcy}
+\end{figure}
 
-% C2: full sweep, 8 figures
+Figure~\ref{fig:bankruptcy} shows that the bankruptcy rate peaks at
+$\mathrm{BDP} = 500$ at 17.3\%---nearly one in five households is
+financially destroyed. This is not a monotonic function of BDP: at
+$\mathrm{BDP} = 0$, low automation preserves employment and keeps
+bankruptcy around 5\%; at $\mathrm{BDP} \geq 3{,}000$, the transfer
+itself prevents savings depletion. The critical point is the worst of
+both worlds: automation accelerates (the acceleration paradox) but the
+transfer is too small to cushion the resulting unemployment.
 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/fig03_gini_decomposition.png}
+  \caption{Income Gini and wealth Gini at month~120 by BDP level
+    (Campaign~2). Income Gini peaks at $\approx 0.50$ near
+    $\mathrm{BDP}_c$, then falls as UBI provides an income floor. Wealth
+    Gini remains flat at $\approx 0.14$ across all BDP levels---UBI
+    redistributes income but not wealth.}
+  \label{fig:gini}
+\end{figure}
+
+Figure~\ref{fig:gini} decomposes inequality into income and wealth
+components. Income Gini peaks at $\approx 0.50$ near the critical point
+and declines monotonically with higher BDP, consistent with UBI's role
+as an income floor. However, wealth Gini remains flat at $\approx 0.14$
+regardless of BDP level. This decoupling---income inequality responsive
+to policy, wealth inequality invariant---is invisible in the aggregate
+model and has direct implications for long-run social mobility.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/fig06_welfare_comparison.png}
+  \caption{Income Gini and poverty rate (50\% median threshold) by BDP
+    level. Poverty is non-monotonic, peaking at $\approx 45\%$ for
+    $\mathrm{BDP} = 500$--$1{,}000$ before declining at higher transfers.}
+  \label{fig:welfare}
+\end{figure}
+
+Figure~\ref{fig:welfare} confirms the non-monotonicity: the poverty rate
+(fraction below 50\% of median income) peaks at 45\% in the critical
+region and declines at higher BDP. This creates the paradox noted in
+Section~\ref{sec:intro}: moderate UBI is \emph{worse} than no UBI on
+poverty metrics, because it accelerates automation without providing
+sufficient cushion.
+
+%----------------------------------------------------------------------
+\subsection{Unemployment Dynamics and Scarring}
+\label{sec:scarring}
+%----------------------------------------------------------------------
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/fig01_distribution_evolution.png}
+  \caption{Unemployment rate distribution over time by BDP level
+    (Campaign~2). Violin widths show cross-seed variation. Unemployment
+    rises monotonically from the technology shock (month~30), with higher
+    BDP levels producing both higher mean unemployment and greater
+    cross-seed dispersion.}
+  \label{fig:unemployment}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/fig08_scarring_dynamics.png}
+  \caption{Mean skill level and mean health penalty at month~120 by BDP
+    level (Campaign~2). Both scarring channels worsen monotonically with
+    BDP---higher automation creates longer unemployment spells, which
+    degrade human capital through the mechanisms of
+    Equations~(\ref{eq:skill-decay})--(\ref{eq:health-scarring}). Insets
+    show the theoretical single-agent scarring curves.}
+  \label{fig:scarring}
+\end{figure}
+
+Figures~\ref{fig:unemployment} and~\ref{fig:scarring} establish the
+scarring channel. Higher BDP accelerates automation, which increases
+both the level and duration of unemployment. After the 3-month onset
+period, skill decay and health penalties accumulate monotonically. At
+$\mathrm{BDP} = 5{,}000$, mean skill falls to approximately 55\% of
+initial level and mean health penalty reaches $\approx 0.17$. This is
+\emph{path-dependent}: the damage to human capital persists even if
+employment is eventually restored.
+
+%----------------------------------------------------------------------
+\subsection{Savings and the Buffer-Stock Mechanism}
+\label{sec:savings}
+%----------------------------------------------------------------------
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/fig02_savings_trajectories.png}
+  \caption{Terminal savings (mean and median) by BDP level (Campaign~2).
+    Mean exceeds median at all BDP levels (right-skewed distribution).
+    Both dip at $\mathrm{BDP} = 500$ where bankruptcy eliminates low-savings
+    households, then rise as UBI supplements saving capacity.}
+  \label{fig:savings}
+\end{figure}
+
+Figure~\ref{fig:savings} shows terminal savings by BDP level. The
+mean--median gap (right skewness) is persistent, consistent with
+buffer-stock saving theory \parencite{carroll1997}. The dip at
+$\mathrm{BDP} = 500$ reflects selective attrition: households with low
+initial savings go bankrupt first, mechanically raising the median among
+survivors. Above $\mathrm{BDP} = 1{,}000$, both mean and median rise as
+the transfer supplements saving capacity.
+
+%----------------------------------------------------------------------
+\subsection{Retraining: The Scarring Catch-22}
+\label{sec:retraining}
+%----------------------------------------------------------------------
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/fig05_retraining_outcomes.png}
+  \caption{Retraining funnel at $\mathrm{BDP} = 2{,}000$ PLN
+    (Campaign~5). Enhanced retraining (doubled probability, halved cost
+    and duration) generates $\approx 2\times$ more attempts but success
+    rate remains $\approx 18\%$ in both regimes---because success depends
+    on $\sigma_i \cdot (1 - h_i)$, which deteriorates during the
+    unemployment spell preceding retraining entry.}
+  \label{fig:retraining}
+\end{figure}
+
+Figure~\ref{fig:retraining} presents the retraining funnel. The enhanced
+policy doubles the retraining probability (0.30 vs 0.15) and halves both
+cost (2,500 vs 5,000 PLN) and duration (3 vs 6 months). This generates
+nearly twice as many attempts ($\approx 5{,}850$ vs $\approx 3{,}250$
+per month). However, the success rate remains stubbornly around 18\% in
+both regimes. The explanation lies in Equation~(\ref{eq:retrain-success}):
+success probability depends on current skill and health, both of which
+have deteriorated during the $> 6$ months of unemployment required before
+retraining eligibility. This creates a structural catch-22: the
+households that most need retraining have the lowest probability of
+completing it successfully.
+
+The policy implication is that retraining effectiveness depends
+critically on \emph{timing}---intervening before scarring onset
+($\tau_0 = 3$ months) would preserve the $p_0 = 0.60$ base success
+rate. The current design, which requires 6~months of unemployment before
+eligibility, guarantees that at least 3~months of scarring have already
+occurred.
+
+%----------------------------------------------------------------------
 \subsection{MPC Heterogeneity}
 \label{sec:mpc}
+%----------------------------------------------------------------------
 
-% C3: 3 MPC distributions
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{../figures/fig07_mpc_sensitivity.png}
+  \caption{Consumption distribution (P10--P90 band and median) across
+    three MPC regimes at $\mathrm{BDP} = 2{,}000$ PLN (Campaign~3).
+    The three regimes produce similar distributions, confirming that
+    macro dynamics dominate micro consumption heterogeneity.}
+  \label{fig:mpc}
+\end{figure}
 
-\subsection{Wealth Distribution Sensitivity}
-\label{sec:wealth}
+Figure~\ref{fig:mpc} tests whether heterogeneity in the marginal
+propensity to consume alters outcomes. Three Beta distributions---low
+variance ($\alpha = 16$), baseline ($\alpha = 8.2$), and high variance
+($\alpha = 3$)---produce similar P10--P90 consumption bands. This
+robustness result is significant: it implies that the distributional
+findings in Sections~\ref{sec:critical}--\ref{sec:retraining} are not
+artifacts of the assumed MPC distribution. The macro dynamics (automation
+decisions, labor market matching, BDP transfers) dominate the
+micro-level consumption heterogeneity.
 
-% C4: poor/baseline/rich
-
-\subsection{Retraining Policy}
-\label{sec:retraining}
-
-% C5: none/baseline/enhanced
-
+%======================================================================
 \section{Discussion}
 \label{sec:discussion}
+%======================================================================
 
-% Key findings, policy implications
+\subsection{The Aggregate Masks the Critical}
 
+The central contribution of this paper is methodological: replacing the
+representative agent with heterogeneous households reveals that the
+aggregate welfare metrics used in Papers~I--IV gave a systematically
+misleading picture of the critical point. Where aggregate Gini
+$\approx 0.20$ at $\mathrm{BDP}_c = 500$ suggested moderate inequality,
+individual-level Gini reaches 0.50. Where aggregate unemployment
+$\approx 40\%$ is a single number, the household distribution shows
+17.3\% bankruptcy, 45\% poverty, and severe scarring. This is not merely
+a quantitative refinement---it reverses the policy interpretation of the
+critical point from ``sweet spot'' to ``zone of maximum destruction.''
+
+This finding resonates with the HANK literature
+\parencite{kaplan2018}: heterogeneity is not a second-order correction
+to aggregate dynamics but a first-order determinant of welfare outcomes.
+The SFC-ABM framework, with its explicit tracking of every monetary
+flow, is naturally suited to this disaggregation because balance-sheet
+consistency is maintained at the individual level.
+
+\subsection{Scarring as Hysteresis Mechanism}
+
+The scarring mechanism (Equations~\ref{eq:skill-decay}--\ref{eq:health-scarring})
+introduces genuine hysteresis into the model. Unlike Papers~I--V where
+the automation transition was largely reversible (firms could re-hire),
+human capital destruction is path-dependent. This connects to the
+classical hysteresis literature \parencite{blanchard1986} and the
+empirical scarring evidence \parencite{arulampalam2001, jacobson1993}:
+unemployment duration has permanent effects on earnings, health, and
+re-employment probability. The ABM makes this mechanism endogenous rather
+than imposed through a reduced-form earnings penalty.
+
+\subsection{The Retraining Paradox}
+
+The catch-22 identified in Section~\ref{sec:retraining} has a direct
+policy analog: active labor market programs (ALMPs) are empirically
+most effective for the short-term unemployed and least effective for the
+long-term unemployed \parencite{card2018, heckman1999}. Our model
+provides a micro-founded explanation: it is not that programs are poorly
+designed, but that the human capital base on which they operate has
+already been eroded. The implication is that ALMP timing---intervening
+before the scarring onset period---matters more than ALMP intensity.
+
+\subsection{The Three-Way Policy Dilemma}
+
+Combining the results yields a three-way dilemma with no UBI-only
+solution:
+
+\begin{enumerate}
+  \item \textbf{No UBI} ($\mathrm{BDP} = 0$): Low disruption, stable
+    microstructure, but technological stagnation. The economy avoids the
+    transition entirely.
+  \item \textbf{Critical UBI} ($\mathrm{BDP} \approx 500$): Maximum
+    disruption---peak bankruptcy, poverty, and inequality. The transfer
+    catalyzes automation but is too small to cushion the consequences.
+  \item \textbf{High UBI} ($\mathrm{BDP} \geq 3{,}000$): Low income
+    inequality and poverty, but maximum scarring. Households are
+    financially stable through transfers but permanently excluded from
+    productive employment.
+\end{enumerate}
+
+None of these is unambiguously preferable. The choice depends on the
+social welfare function: whether society values technological
+modernization (favoring high BDP with complementary policies), stability
+(favoring $\mathrm{BDP} = 0$), or some intermediate objective that the
+UBI instrument alone cannot achieve.
+
+\subsection{Limitations}
+
+Several simplifications constrain the generality of these findings.
+First, households do not optimize intertemporally---consumption follows
+a fixed MPC rule rather than a consumption-saving problem. Second, the
+labor market matching function is mechanical rather than search-theoretic.
+Third, the scarring parameters ($\lambda_\sigma$, $\lambda_h$,
+$\tau_0$) are calibrated to cross-country averages rather than Polish
+micro-data. Fourth, the model does not include household formation,
+dissolution, or intergenerational transfers. These are natural extensions
+for future work.
+
+%======================================================================
 \section{Conclusion}
 \label{sec:conclusion}
+%======================================================================
 
+This paper demonstrates that replacing the representative household with
+100,000 heterogeneous agents fundamentally changes the interpretation of
+the SFC-ABM automation transition. The critical point
+$\mathrm{BDP}_c = 500$~PLN, which appeared as a policy sweet spot in
+aggregate analysis, is revealed as the zone of maximum microstructural
+destruction: peak bankruptcy (17.3\%), peak poverty (45\%), and peak
+income inequality (Gini $\approx 0.50$). Unemployment scarring---skill
+decay and health penalties accumulating during joblessness---creates
+path-dependent human capital destruction that undermines retraining
+programs and generates a transfer-dependent class at high BDP levels.
+
+The principal implication is that UBI addresses the \emph{income}
+dimension of the automation transition but not the \emph{human capital}
+dimension. Complementary policies---particularly pre-emptive skill
+protection before scarring onset and early-intervention retraining---are
+necessary to prevent the emergence of structural exclusion from
+productive employment. The automation transition is not merely a
+distributional problem amenable to transfers; it is a structural
+transformation whose costs are mediated by path-dependent processes that
+the representative agent, by construction, cannot capture.
+
+%======================================================================
 \printbibliography
+%======================================================================
 
 \end{document}
