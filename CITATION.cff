@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+type: software
+title: "Heterogeneous Households and the Limits of UBI in AI-Driven Automation"
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Maciaszek
+    given-names: Mateusz
+version: 1.0.0
+date-released: 2026-02-27
+license: MIT
+repository-code: https://github.com/complexity-econ/paper-06-heterogeneous-households
+keywords:
+  - heterogeneous agents
+  - household dynamics
+  - savings distribution
+  - skill decay
+  - scarring
+  - agent-based model
+  - stock-flow consistent
+  - automation
+  - universal basic income
+  - complexity economics
